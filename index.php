@@ -105,6 +105,8 @@ try {
             $account_entries = [];
             $index_of_account_column = array_search("Kontonummer", $second_row_as_array);
             $index_of_opposite_account_column = array_search("Gegenkonto ohne BU Schluessel", $second_row_as_array);
+            $index_of_belegfeld_1 = array_search("Belegfeld 1", $second_row_as_array);
+            $index_of_buchungstext = array_search("Buchungstext", $second_row_as_array);
             $index_of_sales_without_a_mark = array_search("Umsatz ohne S/H Kennzeichen", $second_row_as_array);
             $begin_the_customer_paragraph = count(file($file_name));
             $customer_array = [];
@@ -118,14 +120,18 @@ try {
                         if ($column_index === $index_of_account_column)
                             $combination_key_account_opposite_account .= $column_data_array[$column_index].",";
                         if ($column_index === $index_of_opposite_account_column)
+                            $combination_key_account_opposite_account .= $column_data_array[$column_index].",";
+                        if ($column_index === $index_of_belegfeld_1)
                             $combination_key_account_opposite_account .= $column_data_array[$column_index];
                     }
-                    if (!array_key_exists($combination_key_account_opposite_account, $account_entries))
+                    if (!array_key_exists($combination_key_account_opposite_account, $account_entries)) {
                         $account_entries[$combination_key_account_opposite_account]["umsatz"] = 0.0 ;
+                    }
                 } else {
                     $begin_the_customer_paragraph = $line_index;
                     array_push($customer_array, $line);
                 }
+
             }
             fclose($saved_file);
 
@@ -133,15 +139,20 @@ try {
             for ($line_index = 0; $line_index < count(file($file_name)); $line_index++) {
                 $line = fgets($saved_file);
                 $column_data_array = explode(";", $line);
+                
                 if (strlen(trim(join("",$column_data_array))) != 0 && !in_array("****************** Customer *******************", $column_data_array) && $line_index > 1) {
                     for ($column_index = 0; $column_index <= count($column_data_array); $column_index++) {
                         if ($column_index === $index_of_sales_without_a_mark) {  
+                            $combination_key = $column_data_array[$index_of_account_column].','.$column_data_array[$index_of_opposite_account_column].','.$column_data_array[$index_of_belegfeld_1];
                             $point_formatted_sales = floatval(preg_replace('/,/', '.',$column_data_array[$index_of_sales_without_a_mark]));
-                            $account_entries[$column_data_array[$index_of_account_column].','.$column_data_array[$index_of_opposite_account_column]]["umsatz"] = $account_entries[$column_data_array[$index_of_account_column].','.$column_data_array[$index_of_opposite_account_column]]["umsatz"] + $point_formatted_sales;
+                            $account_entries[$combination_key]["umsatz"] = $account_entries[$combination_key]["umsatz"] + $point_formatted_sales;
+                        } else if ($column_index === $index_of_buchungstext) {
+                            $account_entries[$combination_key][$second_row_as_array[$index_of_buchungstext]] .= $column_data_array[$index_of_buchungstext] . ", ";
                         } else {
                             if (!empty($second_row_as_array[$column_index]))
-                                $account_entries[$column_data_array[$index_of_account_column].','.$column_data_array[$index_of_opposite_account_column]][$second_row_as_array[$column_index]] = $column_data_array[$column_index];
+                                $account_entries[$combination_key][$second_row_as_array[$column_index]] = $column_data_array[$column_index];
                         }
+
                     }
                 }
             }
