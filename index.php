@@ -7,7 +7,7 @@
 define("DEBUG", false);
 define("MESSAGES", [
     "english" => [
-        0   => "No message is a good message! 👍",
+        0   => "No message! 👍",
         1   => "Successfully converted",
         2   => "Somthing wrong with sumbit",
         3   => "File csv not set",
@@ -29,7 +29,7 @@ define("MESSAGES", [
         19  => "Convert",
     ],
     "german" => [
-        0 => "Keine Nachricht ist eine gute Nachricht! 👍",
+        0 => "Keine Meldung! 👍",
         1 => "Erfolgreich konvertiert",
         2 => "Etwas stimmt nicht mit Sumbit",
         3 => "Datei csv wurde nicht ausgewählt",
