@@ -27,6 +27,9 @@ define("MESSAGES", [
         17  => "Choose the CSV",
         18  => "Download",
         19  => "Convert",
+        20  => "Messages display",
+        21  => "Click to download",
+        22  => "Click to convert"
     ],
     "german" => [
         0 => "Keine Meldung! 👍",
@@ -49,6 +52,9 @@ define("MESSAGES", [
         17  => "Wähle die CSV-Datei aus",
         18  => "Herunterladen",
         19  => "Konvertieren",
+        20  => "Meldungensfenster",
+        21  => "Klicke zum Herunterladen",
+        22  => "Klicke zum Konvertiren"
     ]
 ]);
 define("UPLOAD_DIRECTORY", "./");
@@ -236,7 +242,8 @@ if (!DEBUG)
                                 convertButton.classList.add("main-upload-container-form-submit-button");
                                 convertButton.type = "submit";
                                 convertButton.name = "submit";
-                                convertButton.value = "Convert";
+                                convertButton.value = "<?=MESSAGES[$language][19]?>";
+                                convertButton.title = "<?=MESSAGES[$language][22]?>";
                                 if (oldConvertButton != null) {
                                     form.removeChild(oldConvertButton);
                                 }
@@ -440,27 +447,27 @@ if (!DEBUG)
     <div class="main">
         <div class="main-upload-container">
             <figure class="main-upload-container-logo-frame">
-                <img class="main-upload-container-logo-frame-image" src="logo.png" alt="logo">
+                <img class="main-upload-container-logo-frame-image" src="logo.png" alt="logo" title="CSV-Parser">
             </figure>
             <?php 
                 if ($message === MESSAGES[$language][0] || $message ===  MESSAGES[$language][1])
-                    echo '<div class="main-upload-container-message">'.$message.'</div>';
+                    echo '<div class="main-upload-container-message" title="'.MESSAGES[$language][20].'">'.$message.'</div>';
                 else
-                    echo '<div class="main-upload-container-message error">'.$message.'</div>';
+                    echo '<div class="main-upload-container-message error" title="'.MESSAGES[$language][20].'">'.$message.'</div>';
             ?>
-            <div class="main-upload-container-title">
+            <div class="main-upload-container-title" title="<?=MESSAGES[$language][16]?>">
                 <?=MESSAGES[$language][16]?>
             </div>
             <form class="main-upload-container-form" method="post" action="./index.php" enctype="multipart/form-data">
-                <label for="file" class="main-upload-container-select-file-label"><?=MESSAGES[$language][17]?></label>
+                <label for="file" class="main-upload-container-select-file-label" title="<?=MESSAGES[$language][17]?>"><?=MESSAGES[$language][17]?></label>
                 <input id="file" class="main-upload-container-select-file" type="file" name="csv" />
                 <?php 
                     if ($download) {
-                        echo '<a class="main-upload-container-form-download-link" href="'.$download_file.'" download >'.MESSAGES[$language][18].'</a>';
+                        echo '<a class="main-upload-container-form-download-link" title="'.MESSAGES[$language][21].'" href="'.$download_file.'" download >'.MESSAGES[$language][18].'</a>';
                     }
                 ?>
                 <noscript>
-                    <input class="main-upload-container-form-submit-button" type="submit" name="submit" value="<?=MESSAGES[$language][19]?>">
+                    <input class="main-upload-container-form-submit-button" type="submit" title="<?=MESSAGES[$language][22]?>" name="submit" value="<?=MESSAGES[$language][19]?>">
                 </noscript>
             </form>
         </div>
