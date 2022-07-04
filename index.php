@@ -260,8 +260,6 @@ if (!DEBUG)
             height: 100vh;
             background-color: white; 
             opacity: 0.8;
-            background-image: radial-gradient(gray 0.5px, white 0.5px);
-            background-size: 10px 10px;
         }
 
         .main-upload-container {
