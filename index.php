@@ -6,31 +6,60 @@
  */
 define("DEBUG", false);
 define("MESSAGES", [
-    0   => "No message is a good message! 👍",
-    1   => "Successfully converted",
-    2   => "Somthing wrong with sumbit",
-    3   => "File csv not set",
-    4   => "File with erros",
-    5   => "Invalid data type",
-    6   => "File name must include just one '.'",
-    7   => "File type must be csv",
-    8   => "File is bigger than 5mb",
-    9   => "File exists",
-    10  => "File not saved",
-    11  => "Read and write failed",
-    12  => "Unknown error call the developer team",
-    13  => "Unable to open file!",
-    14  => "Unable to open file!!",
-    15  => "Unable to open file!!!",
+    "english" => [
+        0   => "No message is a good message! 👍",
+        1   => "Successfully converted",
+        2   => "Somthing wrong with sumbit",
+        3   => "File csv not set",
+        4   => "File with erros",
+        5   => "Invalid data type",
+        6   => "File name must include just one '.'",
+        7   => "File type must be csv",
+        8   => "File is bigger than 5mb",
+        9   => "File exists",
+        10  => "File not saved",
+        11  => "Read and write failed",
+        12  => "Unknown error call the developer team",
+        13  => "Unable to open file!",
+        14  => "Unable to open file!!",
+        15  => "Unable to open file!!!",
+        16  => "Upload the CSV",
+        17  => "Choose the CSV",
+        18  => "Download",
+        19  => "Convert",
+    ],
+    "german" => [
+        0 => "Keine Nachricht ist eine gute Nachricht! 👍",
+        1 => "Erfolgreich konvertiert",
+        2 => "Etwas stimmt nicht mit Sumbit",
+        3 => "Datei csv wurde nicht ausgewählt",
+        4 => "Datei mit Fehlern",
+        5 => "Ungültiger Datentyp",
+        6 => "Dateiname muss nur ein '.' enthalten",
+        7 => "Dateityp muss csv sein",
+        8 => "Datei ist größer als 5 MB",
+        9 => "Datei existiert",
+        10 => "Datei nicht gespeichert",
+        11 => "Lesen und Schreiben fehlgeschlagen",
+        12 => "Unbekannter Fehler Entwicklerteam anrufen",
+        13 => "Datei kann nicht geöffnet werden!",
+        14 => "Datei kann nicht geöffnet werden!",
+        15 => "Datei kann nicht geöffnet werden!!!",
+        16  => "Lade die CSV-Datei hoch",
+        17  => "Wähle die CSV-Datei aus",
+        18  => "Herunterladen",
+        19  => "Konvertieren",
+    ]
 ]);
 define("UPLOAD_DIRECTORY", "./");
 define("ALLOWED_MIMES", [
     "text/csv",
 ]);
 define("FILE_LIMIT_SIZE", 5000000);
-$download = false;
+$language = "german";
+$download = false; 
 $download_file = "";
-$message = MESSAGES[0];
+$message = MESSAGES[$language][0];
 
 if (!DEBUG) {
     ini_set('html_error', 'false');
@@ -40,30 +69,30 @@ if (!DEBUG) {
     error_reporting(E_USER_ERROR);
     set_error_handler(function(){});
 }
-function show_message($message_code) {
-    $message = MESSAGES[$message_code];
+function show_message($message_code, $lang) {
+    $message = MESSAGES[$lang][$message_code];
 }
 
 try { 
-    if (count($_POST) > 1 && isset($_POST["submit"])) show_message(2);
+    if (count($_POST) > 1 && isset($_POST["submit"])) show_message(2, $languag);
     if (isset($_POST["submit"])) {
-        if (!isset($_FILES["csv"])) show_message(3);
-        if ($_FILES["csv"]["error"] > 0) show_message(4);
-        if (!in_array($_FILES["csv"]["type"], ALLOWED_MIMES)) show_message(5);
-        if (count(explode(".", $_FILES["csv"]["name"])) != 2) show_message(6);
-        if (count(explode(".csv", $_FILES["csv"]["name"])) != 2 || strlen(explode(".csv", $_FILES["csv"]["name"])[1]) != 0) show_message(7);
-        if ($_FILES["csv"]["size"] > FILE_LIMIT_SIZE) show_message(8); 
+        if (!isset($_FILES["csv"])) show_message(3, $languag);
+        if ($_FILES["csv"]["error"] > 0) show_message(4, $languag);
+        if (!in_array($_FILES["csv"]["type"], ALLOWED_MIMES)) show_message(5, $languag);
+        if (count(explode(".", $_FILES["csv"]["name"])) != 2) show_message(6, $languag);
+        if (count(explode(".csv", $_FILES["csv"]["name"])) != 2 || strlen(explode(".csv", $_FILES["csv"]["name"])[1]) != 0) show_message(7, $languag);
+        if ($_FILES["csv"]["size"] > FILE_LIMIT_SIZE) show_message(8, $languag);
 
         // not yet used
         // $time_as_file_name = (UPLOAD_DIRECTORY . ($saving_time = DateTime::createFromFormat('U.u', microtime(TRUE))->format('Y_m_d_H_i_s_u')) . ".csv");
         
         $file_name = (UPLOAD_DIRECTORY . basename($_FILES["csv"]["name"]));
-        if (file_exists($file_name)) show_message(9); 
-        if (!move_uploaded_file($_FILES["csv"]["tmp_name"], $file_name)) show_message(MESSAGES[10]); 
+        if (file_exists($file_name)) show_message(9, $languag);
+        if (!move_uploaded_file($_FILES["csv"]["tmp_name"], $file_name)) show_message(MESSAGES[$language][10], $languag);
 
         $saved_file = null;
         try {
-            $saved_file = fopen($file_name,"r") or show_message(MESSAGES[13]);
+            $saved_file = fopen($file_name,"r") or show_message(MESSAGES[$language][13], $languag);
             $line_counter = 0;
             $first_row_as_array = explode(";", fgets($saved_file));
             $second_row_as_array = explode(";", fgets($saved_file));
@@ -94,7 +123,7 @@ try {
             }
             fclose($saved_file);
 
-            $saved_file = fopen($file_name,"r") or show_message(MESSAGES[13]);
+            $saved_file = fopen($file_name,"r") or show_message(MESSAGES[$language][13], $languag);
             for ($line_index = 0; $line_index < count(file($file_name)); $line_index++) {
                 $line = fgets($saved_file);
                 $column_data_array = explode(";", $line);
@@ -111,7 +140,7 @@ try {
                 }
             }
 
-            $formatted_file = fopen($file_name,"w") or show_message(MESSAGES[15]);
+            $formatted_file = fopen($file_name,"w") or show_message(MESSAGES[$language][15], $languag);
             $output_first_line = join(";",$first_row_as_array);
             fwrite($formatted_file, $output_first_line);
             $output_second_line = join(";",$second_row_as_array);
@@ -145,15 +174,15 @@ try {
 
             $download_file = $file_name;
             $download = true;
-            $message = MESSAGES[1];
+            $message = MESSAGES[$language][1];
         } catch (Exception $exception) {
-            show_message(MESSAGES[11]);
+            show_message(MESSAGES[$language][11], $languag);
         } finally {
             fclose($saved_file);
         }  
     }        
 } catch (Exception $exception) {
-    $message = MESSAGES[12];
+    $message = MESSAGES[$language][12];
 } finally { 
     header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
     header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
@@ -197,7 +226,7 @@ if (!DEBUG)
                     if (currentDatatype) {
                         if (currentDataName) {
                             let downloadLink = document.querySelector(".main-upload-container-form-download-link");
-                            message.textContent = "<?=MESSAGES[0]?>";
+                            message.textContent = "<?=MESSAGES[$language][0]?>";
 
                             if (currentDataSize) {
                                 const oldConvertButton = form.querySelector(".main-upload-container-form-submit-button");
@@ -215,13 +244,13 @@ if (!DEBUG)
                                 }
                                 form.appendChild(convertButton);
                             } else {
-                                message.textContent = "<?=MESSAGES[8]?>";
+                                message.textContent = "<?=MESSAGES[$language][8]?>";
                             }
                         } else {
-                            message.textContent = "<?=MESSAGES[6]?>";
+                            message.textContent = "<?=MESSAGES[$language][6]?>";
                         }
                     } else {
-                        message.textContent = "<?=MESSAGES[5]?>";
+                        message.textContent = "<?=MESSAGES[$language][5]?>";
                     }
 
                     if (!currentDatatype || !currentDataName || !currentDataSize){
@@ -413,24 +442,24 @@ if (!DEBUG)
                 <img class="main-upload-container-logo-frame-image" src="logo.png" alt="logo">
             </figure>
             <?php 
-                if ($message === MESSAGES[0] || $message ===  MESSAGES[1])
+                if ($message === MESSAGES[$language][0] || $message ===  MESSAGES[$language][1])
                     echo '<div class="main-upload-container-message">'.$message.'</div>';
                 else
                     echo '<div class="main-upload-container-message error">'.$message.'</div>';
             ?>
             <div class="main-upload-container-title">
-                Upload the CSV
+                <?=MESSAGES[$language][16]?>
             </div>
             <form class="main-upload-container-form" method="post" action="./index.php" enctype="multipart/form-data">
-                <label for="file" class="main-upload-container-select-file-label">Choose the CSV</label>
+                <label for="file" class="main-upload-container-select-file-label"><?=MESSAGES[$language][17]?></label>
                 <input id="file" class="main-upload-container-select-file" type="file" name="csv" />
                 <?php 
                     if ($download) {
-                        echo '<a class="main-upload-container-form-download-link" href="'.$download_file.'" download >Download</a>';
+                        echo '<a class="main-upload-container-form-download-link" href="'.$download_file.'" download >'.MESSAGES[$language][18].'</a>';
                     }
                 ?>
                 <noscript>
-                    <input class="main-upload-container-form-submit-button" type="submit" name="submit" value="Convert">
+                    <input class="main-upload-container-form-submit-button" type="submit" name="submit" value="<?=MESSAGES[$language][19]?>">
                 </noscript>
             </form>
         </div>
