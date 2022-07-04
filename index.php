@@ -123,7 +123,7 @@ try {
             }
             fclose($saved_file);
 
-            $saved_file = fopen($file_name,"r") or show_message(MESSAGES[$language][13], $languag);
+            $saved_file = fopen($file_name, "r") or show_message(MESSAGES[$language][13], $languag);
             for ($line_index = 0; $line_index < count(file($file_name)); $line_index++) {
                 $line = fgets($saved_file);
                 $column_data_array = explode(";", $line);
@@ -140,7 +140,7 @@ try {
                 }
             }
 
-            $formatted_file = fopen($file_name,"w") or show_message(MESSAGES[$language][15], $languag);
+            $formatted_file = fopen($file_name, "w") or show_message(MESSAGES[$language][15], $languag);
             $output_first_line = join(";",$first_row_as_array);
             fwrite($formatted_file, $output_first_line);
             $output_second_line = join(";",$second_row_as_array);
@@ -158,15 +158,16 @@ try {
                             if ($column_count < count($line_array) - 1)
                                 $formatted_line .= $column.";";
                             else
-                                $formatted_line .= $column;
+                                $formatted_line .= $colum;
                         }
                         $column_count++;
                     }
                 }
+                $formatted_line .= ($line_count < count($account_entries) - 1 ? ";;;;;;;;\n" : ";;;;;;;;");
                 fwrite($formatted_file, $formatted_line);
                 $line_count++;
             }
-            fwrite($formatted_file,";;;;;;;;;;;;;;;;;;;;;\n");
+            fwrite($formatted_file,";;;;;;;;;;;;;\n");
             foreach ($customer_array as $line) {
                 fwrite($formatted_file, $line);
             }
