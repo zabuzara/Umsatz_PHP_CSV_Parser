@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Omid Malekzadeh Eshtajarani <omidmalekzadeh@yahoo.com>
+ * @author Omid Malekzadeh Eshtajarani <omid.malekzadeh-eshtajarani@jaemacom.de>
  * @copyright 2022 - JAEMACOM-GmbH <https://www.jaemacom.de>
  * @version PHP version 7.4.29 
  */
