@@ -56,7 +56,7 @@ define("ALLOWED_MIMES", [
     "text/csv",
 ]);
 define("FILE_LIMIT_SIZE", 5000000);
-$language = "english";
+$language = "german";
 $download = false; 
 $download_file = "";
 $message = MESSAGES[$language][0];
