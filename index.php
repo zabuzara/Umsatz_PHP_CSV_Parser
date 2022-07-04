@@ -100,8 +100,11 @@ try {
         try {
             $saved_file = fopen($file_name,"r") or show_message(MESSAGES[$language][13], $languag);
             $line_counter = 0;
+            $third_row_as_array = explode(";", fgets($saved_file));
+            
             $first_row_as_array = explode(";", fgets($saved_file));
             $second_row_as_array = explode(";", fgets($saved_file));
+          
             $account_entries = [];
             $index_of_account_column = array_search("Kontonummer", $second_row_as_array);
             $index_of_opposite_account_column = array_search("Gegenkonto ohne BU Schluessel", $second_row_as_array);
@@ -115,7 +118,7 @@ try {
                 $line = fgets($saved_file);
                 $column_data_array = explode(";", $line);
                 $combination_key_account_opposite_account = "";
-                if (!in_array("****************** Customer *******************", $column_data_array) && $line_index < $begin_the_customer_paragraph) {
+                if (!in_array("******************Problems*******************", $column_data_array) && $line_index < $begin_the_customer_paragraph) {
                     for ($column_index = 0; $column_index <= count($column_data_array); $column_index++) {
                         if ($column_index === $index_of_account_column)
                             $combination_key_account_opposite_account .= $column_data_array[$column_index].",";
@@ -140,7 +143,7 @@ try {
                 $line = fgets($saved_file);
                 $column_data_array = explode(";", $line);
                 
-                if (strlen(trim(join("",$column_data_array))) != 0 && !in_array("****************** Customer *******************", $column_data_array) && $line_index > 1) {
+                if (strlen(trim(join("",$column_data_array))) != 0 && !in_array("******************Problems*******************", $column_data_array) && $line_index > 1) {
                     for ($column_index = 0; $column_index <= count($column_data_array); $column_index++) {
                         if ($column_index === $index_of_sales_without_a_mark) {  
                             $combination_key = $column_data_array[$index_of_account_column].','.$column_data_array[$index_of_opposite_account_column].','.$column_data_array[$index_of_belegfeld_1];
