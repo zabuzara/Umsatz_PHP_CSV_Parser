@@ -111,6 +111,9 @@ try {
                 }
                 $line_counter++;
             }
+
+            $end_line =   $end_line != 0  ? $end_line : count(file($file_name));
+
             fclose($saved_file);
 
             $saved_file = fopen($file_name,"r") or show_message(MESSAGES[$language][13], $language);
@@ -119,6 +122,7 @@ try {
             for ($head_line_index = 0; $head_line_index <= $begin_line; $head_line_index++) {
                 array_push($head_line_array, explode(";", fgets($saved_file)));
             }
+  
 
             $second_row_as_array = $head_line_array[$begin_line];
             $account_entries = [];
