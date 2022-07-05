@@ -1,0 +1,50 @@
+EXTF;;;;;;;;;;;;;
+Umsatz ohne S/H Kennzeichen;S/H Kennzeichen;WKZ;Kurs;Basis-Umsatz;WKZ Basis-Umsatz;Kontonummer;Gegenkonto ohne BU Schluessel;BU Schluessel;Belegdatum;Belegfeld 1;Belegfeld 2 (nur fuer Zahlungsfaelligkeiten);Skonto;Buchungstext
+77,35;S;EUR;1;;;37168;8410;;205;R202210121;;;01.04.2022-31.03.2023 Standard-Support für 1 Lizenzpaket ..
+;880,01;S;EUR;1;;;34807;8410;;305;R202210122;;;01.06.2022-31.05.2023 Standard-Support Laufzeit: 01.06.20..
+;1710,63;S;EUR;1;;;34830;8410;;305;R202210123;;;01.06.2022-31.05.2023 Premium-Support Laufzeit: 01.06.202..
+;75;S;EUR;1;;;37026;8338;;405;R202210124;;;01.06.2022-31.05.2023 Premium-Support Laufzeit: 01.06.202..
+;2008,13;S;EUR;1;;;34830;8410;;405;R202210125;;;01.06.2022-31.05.2023 Premium-Support Laufzeit: 01.06.202..
+;7735;S;EUR;1;;;34830;8410;;405;R202210126;;;01.06.2022-31.05.2023 Premium-Support Laufzeit: 01.06.202..
+;1345,89;S;EUR;1;;;34816;8410;;405;R202210127;;;01.06.2022-31.05.2023 Standard-Support Laufzeit: 01.06.20..
+;58,07;S;EUR;1;;;35233;8410;;405;R202210128;;;01.06.2022-31.05.2023 Standard-Support Laufzeit: 01.06.20..
+;129,41;S;EUR;1;;;37182;8410;;405;R202210129;;;01.06.0202-31.05.2023 Standard-Support Laufzeit: 1 Jahr a..
+;102,82;S;EUR;1;;;35515;8410;;505;R202210130;;;01.06.2022-31.05.2023 Standard-Support Laufzeit: 01.06.20..
+;116,03;S;EUR;1;;;37050;8410;;505;R202210131;;;01.06.2022-31.05.2023 Standard-Support Laufzeit: 01.06.20..
+;1820,7;S;EUR;1;;;37049;8410;;505;R202210132;;;01.06.2022-31.05.2023 Standard-Support Laufzeit: 01.06.20..
+;353,43;S;EUR;1;;;37052;8410;;505;R202210133;;;01.06.2022-31.05.2023 Standard-Support Laufzeit: 01.06.20..
+;310,59;S;EUR;1;;;35550;8410;;605;R202210134;;;01.06.2022-31.05.2023 Standard-Support Laufzeit: 1 Jahr a..
+;517,65;S;EUR;1;;;34890;8410;;605;R202210135;;;01.06.2022-31.05.2023 Premium-Support Laufzeit: 1 Jahr ab..
+;165,65;S;EUR;1;;;37181;8410;;605;R202210136;;;01.06.2022-31.05.2023 Standard-Support Laufzeit: 1 Jahr a..
+;724,71;S;EUR;1;;;35086;8410;;605;R202210137;;;01.06.2022-31.05.2023 Standard-Support Laufzeit: 1 Jahr a..
+;35,7;H;EUR;1;;;37039;8410;;1005;RS2210003;;;01.04.2022-31.03.2023 Standard-Support Laufzeit: 01.04.20..
+;207,06;S;EUR;1;;;34913;8410;;1005;R202210138;;;01.06.2022-31.05.2023 Standard-Support Laufzeit: 1 Jahr a..
+;2852,25;S;EUR;1;;;34803;8410;;1305;R202210139;;;01.06.2022-31.05.2023 Standard-Support Laufzeit: 1 Jahr a..
+;114,24;S;EUR;1;;;35553;8410;;1605;R202210140;;;01.06.2022-31.05.2023 Standard-Support Laufzeit: 01.06.20..
+;114,24;H;EUR;1;;;35553;8410;;1605;RS2210004;;;01.06.2022-31.05.2023 Standard-Support Laufzeit: 01.06.20..
+;9996;S;EUR;1;;;37258;8409;;1705;R202210141;;;01.06.2022-31.05.2023 Stiller Alarm Standard Lizenz
+;2088,45;S;EUR;1;;;37259;8409;;1705;R202210142;;;Stiller Alarm Standard Lizenz
+;313,27;S;EUR;1;;;37259;8410;;1705;R202210142;;;01.06.2022-31.05.2023 Standard-Support Laufzeit: 1 Jahr a..
+;818,13;S;EUR;1;;;37250;8409;;1705;R202210143;;;Modul „Mobiles Arbeiten“ - Einsatz von standortunabhängig..
+;93,12;S;EUR;1;;;37250;8410;;1705;R202210143;;;01.06.2022-14.03.2023 Standard-Support für 10 Monate  Lau..
+;34,51;S;EUR;1;;;37152;8409;;1705;R202210144;;;Stiller Alarm Standard Lizenz
+;2,59;S;EUR;1;;;37152;8410;;1705;R202210144;;;01.06.2022-30.11.2022 Standard-Support Laufzeit: 6 Monate..
+;595;S;EUR;1;;;34848;8409;;1805;R202210145;;;Lizenzpaket für bis zu 15 Standard-Lizenzen Kosten pro Li..
+;111,56;S;EUR;1;;;34848;8410;;1805;R202210145;;;01.06.2022-31.05.2023 Premium-Support Laufzeit: 1 Jahr ab..
+;595;S;EUR;1;;;34848;8401;;1805;R202210145;;;#NAME?
+;89,25;S;EUR;1;;;34862;8409;;2005;R202210146;;;Stiller Alarm Standard Lizenz
+;13,39;S;EUR;1;;;34862;8410;;2005;R202210146;;;01.06.2022-28.02.2023 Standard-Support für 9 Monate Laufz..
+;2058,7;S;EUR;1;;;37180;8410;;2405;R202210147;;;01.06.2022-31.05.2023 Standard-Support Laufzeit: 1 Jahr a..
+;1487,5;S;EUR;1;;;37180;8409;;2405;R202210148;;;Modul „Mobiles Arbeiten“ - Einsatz von standortunabhängig..
+;223,13;S;EUR;1;;;37180;8410;;2405;R202210148;;;Standard-Support Laufzeit: 1 Jahr ab Bestellung 15% vom ..
+;560;S;EUR;1;;;37260;8336;;2705;R202210149;;;USB-Button (Alarmknopf) vorprogrammierte Tastenkombinatio..
+;9939,48;S;EUR;1;;;34574;8411;;3005;R202210151;;;01.04.2022-30.04.2022 Projektunterstützung Bogdana Bondare..
+;3596,78;S;EUR;1;;;34574;8411;;3005;R202210152;;;01.04.2022-30.04.2022 Projektunterstützung Jan Lademacher ..
+;1875,74;S;EUR;1;;;34574;8411;;3005;R202210153;;;01.04.2022-30.04.2022 Projektunterstützung Kilian Stange ..
+;7851,03;S;EUR;1;;;34574;8411;;3005;R202210154;;;01.04.2022-30.04.2022 Projektunterstützung Sebastian Doil ..
+;4950,4;S;EUR;1;;;34574;8411;;3005;R202210155;;;01.04.2022-30.04.2022 Projektunterstützung Hassan Alhawari..
+;4462,5;S;EUR;1;;;37252;8409;;3105;R202210156;;;Stiller Alarm Standard Lizenz
+;669,38;S;EUR;1;;;37252;8410;;3105;R202210156;;;01.04.2022-31.03.2023 Standard-Support Laufzeit: 1 Jahr a..
+;54740;S;EUR;1;;;37261;8409;;3105;R202210157;;;20.000 Clients Rundrufsystem Mengenlizenz für 20.000 Cl..
+;27370;S;EUR;1;;;37261;8410;;3105;R202210157;;;01.06.2022-31.05.2027 Pflege und Wartung Rundrufsystem ..
+;

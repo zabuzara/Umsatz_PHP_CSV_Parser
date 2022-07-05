@@ -222,7 +222,6 @@ try {
                                         $combinated_buchungstext[$combination_key]["buchungstext"] =  $is_empty ? $column_data_array[$column_index] : $combinated_buchungstext[$combination_key]["buchungstext"]  .", ". $column_data_array[$column_index]; 
                                     }
                                 }
-
                             }
                         }
                     }
