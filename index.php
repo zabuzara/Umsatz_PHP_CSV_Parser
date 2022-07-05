@@ -4,7 +4,7 @@
  * @author Omid Malekzadeh Eshtajarani <omid.malekzadeh-eshtajarani@jaemacom.de>
  * @version PHP version 7.4.29 
  */
-define("DEBUG", false);
+define("DEBUG", true);
 define("MESSAGES", [
     "english" => [
         0   => "No message! 👍",
@@ -80,31 +80,47 @@ function show_message($message_code, $lang) {
 }
 
 try { 
-    if (count($_POST) > 1 && isset($_POST["submit"])) show_message(2, $languag);
+    if (count($_POST) > 1 && isset($_POST["submit"])) show_message(2, $language);
     if (isset($_POST["submit"])) {
-        if (!isset($_FILES["csv"])) show_message(3, $languag);
-        if ($_FILES["csv"]["error"] > 0) show_message(4, $languag);
-        if (!in_array($_FILES["csv"]["type"], ALLOWED_MIMES)) show_message(5, $languag);
-        if (count(explode(".", $_FILES["csv"]["name"])) != 2) show_message(6, $languag);
-        if (count(explode(".csv", $_FILES["csv"]["name"])) != 2 || strlen(explode(".csv", $_FILES["csv"]["name"])[1]) != 0) show_message(7, $languag);
-        if ($_FILES["csv"]["size"] > FILE_LIMIT_SIZE) show_message(8, $languag);
+        if (!isset($_FILES["csv"])) show_message(3, $language);
+        if ($_FILES["csv"]["error"] > 0) show_message(4, $language);
+        if (!in_array($_FILES["csv"]["type"], ALLOWED_MIMES)) show_message(5, $language);
+        if (count(explode(".", $_FILES["csv"]["name"])) != 2) show_message(6, $language);
+        if (count(explode(".csv", $_FILES["csv"]["name"])) != 2 || strlen(explode(".csv", $_FILES["csv"]["name"])[1]) != 0) show_message(7, $language);
+        if ($_FILES["csv"]["size"] > FILE_LIMIT_SIZE) show_message(8, $language);
 
         // not yet used
         // $time_as_file_name = (UPLOAD_DIRECTORY . ($saving_time = DateTime::createFromFormat('U.u', microtime(TRUE))->format('Y_m_d_H_i_s_u')) . ".csv");
         
         $file_name = (UPLOAD_DIRECTORY . basename($_FILES["csv"]["name"]));
-        if (file_exists($file_name)) show_message(9, $languag);
-        if (!move_uploaded_file($_FILES["csv"]["tmp_name"], $file_name)) show_message(MESSAGES[$language][10], $languag);
+        if (file_exists($file_name)) show_message(9, $language);
+        if (!move_uploaded_file($_FILES["csv"]["tmp_name"], $file_name)) show_message(MESSAGES[$language][10], $language);
 
         $saved_file = null;
         try {
-            $saved_file = fopen($file_name,"r") or show_message(MESSAGES[$language][13], $languag);
+            $saved_file = fopen($file_name,"r") or show_message(MESSAGES[$language][13], $language);
+            $begin_line = 0;
+            $end_line = 0;
             $line_counter = 0;
-            $third_row_as_array = explode(";", fgets($saved_file));
-            
-            $first_row_as_array = explode(";", fgets($saved_file));
-            $second_row_as_array = explode(";", fgets($saved_file));
-          
+            while ($inline = fgets($saved_file)) {
+                if (strpos(strtolower($inline),"umsatz", 1) != false) {
+                    $begin_line = $line_counter;
+                }
+                if (strlen(trim(join("",explode(";", $inline)))) == 0) {
+                    $end_line = $line_counter;
+                }
+                $line_counter++;
+            }
+            fclose($saved_file);
+
+            $saved_file = fopen($file_name,"r") or show_message(MESSAGES[$language][13], $language);
+            $line_counter = 0;
+            $head_line_array = [];
+            for ($head_line_index = 0; $head_line_index <= $begin_line; $head_line_index++) {
+                array_push($head_line_array, explode(";", fgets($saved_file)));
+            }
+
+            $second_row_as_array = $head_line_array[$begin_line];
             $account_entries = [];
             $index_of_account_column = array_search("Kontonummer", $second_row_as_array);
             $index_of_opposite_account_column = array_search("Gegenkonto ohne BU Schluessel", $second_row_as_array);
@@ -113,12 +129,15 @@ try {
             $index_of_sales_without_a_mark = array_search("Umsatz ohne S/H Kennzeichen", $second_row_as_array);
             $begin_the_customer_paragraph = count(file($file_name));
             $customer_array = [];
+            $combinated_buchungstext = [];
 
-            for ($line_index = 0; $line_index < count(file($file_name)); $line_index++) {
+            for ($line_index = 0; $line_index < $end_line; $line_index++) {
                 $line = fgets($saved_file);
                 $column_data_array = explode(";", $line);
                 $combination_key_account_opposite_account = "";
-                if (!in_array("******************Problems*******************", $column_data_array) && $line_index < $begin_the_customer_paragraph) {
+
+                if (strlen(trim(join("",$column_data_array))) != 0 && $line_index <= $end_line) {
+                
                     for ($column_index = 0; $column_index <= count($column_data_array); $column_index++) {
                         if ($column_index === $index_of_account_column)
                             $combination_key_account_opposite_account .= $column_data_array[$column_index].",";
@@ -128,43 +147,57 @@ try {
                             $combination_key_account_opposite_account .= $column_data_array[$column_index];
                     }
                     if (!array_key_exists($combination_key_account_opposite_account, $account_entries)) {
-                        $account_entries[$combination_key_account_opposite_account]["umsatz"] = 0.0 ;
+                        $account_entries[$combination_key_account_opposite_account]["umsatz"] = 0.0;
+                        $combinated_buchungstext[$combination_key_account_opposite_account]["buchungstext"] = "";
                     }
                 } else {
-                    $begin_the_customer_paragraph = $line_index;
-                    array_push($customer_array, $line);
+                    break;
                 }
-
             }
+
+            for ($footer_line_index = $end_line; $footer_line_index <= count(file($file_name)); $footer_line_index++) {
+                array_push($customer_array, explode(";", fgets($saved_file)));
+            }
+
             fclose($saved_file);
 
-            $saved_file = fopen($file_name, "r") or show_message(MESSAGES[$language][13], $languag);
-            for ($line_index = 0; $line_index < count(file($file_name)); $line_index++) {
+            $saved_file = fopen($file_name, "r") or show_message(MESSAGES[$language][13], $language);
+
+            for ($line_index = 0; $line_index < $end_line; $line_index++) {
                 $line = fgets($saved_file);
                 $column_data_array = explode(";", $line);
-                
-                if (strlen(trim(join("",$column_data_array))) != 0 && !in_array("******************Problems*******************", $column_data_array) && $line_index > 1) {
-                    for ($column_index = 0; $column_index <= count($column_data_array); $column_index++) {
+               
+                if (strlen(trim(join("",$column_data_array))) != 0 && $line_index > $begin_line) {
+                    for ($column_index = 0; $column_index < count($column_data_array); $column_index++) {
                         if ($column_index === $index_of_sales_without_a_mark) {  
                             $combination_key = $column_data_array[$index_of_account_column].','.$column_data_array[$index_of_opposite_account_column].','.$column_data_array[$index_of_belegfeld_1];
-                            $point_formatted_sales = floatval(preg_replace('/,/', '.',$column_data_array[$index_of_sales_without_a_mark]));
-                            $account_entries[$combination_key]["umsatz"] = $account_entries[$combination_key]["umsatz"] + $point_formatted_sales;
-                        } else if ($column_index === $index_of_buchungstext) {
-                            $account_entries[$combination_key][$second_row_as_array[$index_of_buchungstext]] .= $column_data_array[$index_of_buchungstext] . ", ";
+                            $point_formatted_sales = floatval(preg_replace('/,/', '.', $column_data_array[$index_of_sales_without_a_mark]));
+                            if (strlen(trim(str_replace(",","", $combination_key))) != 0) {
+                                $account_entries[$combination_key]["umsatz"] = $account_entries[$combination_key]["umsatz"] + $point_formatted_sales;  
+                            }
                         } else {
-                            if (!empty($second_row_as_array[$column_index]))
+                            if (!empty($second_row_as_array[$column_index])) {
                                 $account_entries[$combination_key][$second_row_as_array[$column_index]] = $column_data_array[$column_index];
+                                if ($second_row_as_array[$column_index] == "Buchungstext") {
+                                    if (strlen(trim(str_replace(",","", $combination_key))) != 0) {
+                                        $is_empty = strlen($combinated_buchungstext[$combination_key]["buchungstext"]) == 0;
+                                        $combinated_buchungstext[$combination_key]["buchungstext"] =  $is_empty ? $column_data_array[$column_index] : $combinated_buchungstext[$combination_key]["buchungstext"]  .", ". $column_data_array[$column_index]; 
+                                    }
+                                }
+                            }
                         }
-
                     }
-                }
+                    if (strlen(trim(str_replace(",","", $combination_key))) != 0) {
+                        $account_entries[$combination_key]["Buchungstext"] = $combinated_buchungstext[$combination_key]["buchungstext"] ;
+                    }
+                } 
             }
 
-            $formatted_file = fopen($file_name, "w") or show_message(MESSAGES[$language][15], $languag);
-            $output_first_line = join(";",$first_row_as_array);
-            fwrite($formatted_file, $output_first_line);
-            $output_second_line = join(";",$second_row_as_array);
-            fwrite($formatted_file, $output_second_line);
+            $formatted_file = fopen($file_name, "w") or show_message(MESSAGES[$language][15], $language);
+            for ($head_line_index = 0; $head_line_index <= $begin_line; $head_line_index++) {
+                fwrite($formatted_file, join(";",$head_line_array[$head_line_index]));
+            }
+
             $line_count = 0;
             foreach ($account_entries as $key => $line_array) {
                 $formatted_line = "";
@@ -178,18 +211,17 @@ try {
                             if ($column_count < count($line_array) - 1)
                                 $formatted_line .= $column.";";
                             else
-                                $formatted_line .= $colum;
+                                $formatted_line .= $column;
                         }
                         $column_count++;
                     }
                 }
-                $formatted_line .= ($line_count < count($account_entries) - 1 ? ";;;;;;;;\n" : ";;;;;;;;");
                 fwrite($formatted_file, $formatted_line);
                 $line_count++;
             }
             fwrite($formatted_file,";;;;;;;;;;;;;\n");
             foreach ($customer_array as $line) {
-                fwrite($formatted_file, $line);
+                fwrite($formatted_file, join(";",$line));
             }
             fclose($formatted_file);
 
@@ -197,18 +229,13 @@ try {
             $download = true;
             $message = MESSAGES[$language][1];
         } catch (Exception $exception) {
-            show_message(MESSAGES[$language][11], $languag);
+            show_message(MESSAGES[$language][11], $language);
         } finally {
             fclose($saved_file);
         }  
     }        
 } catch (Exception $exception) {
     $message = MESSAGES[$language][12];
-} finally { 
-    header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-    header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-    header("Cache-Control: no-cache, must-revalidate");
-    header("Pragma: no-cache");
 }
 if (!DEBUG)
     restore_error_handler();
@@ -298,7 +325,7 @@ if (!DEBUG)
             box-sizing: border-box;
             font-family: Verdana, Geneva, Tahoma, sans-serif;
             font-size: 1.2rem;
-            user-select:none;
+            /* user-select:none; */
         } 
 
         html, body {
