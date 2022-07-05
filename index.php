@@ -106,14 +106,15 @@ try {
                 if (strpos(strtolower($inline),"umsatz", 1) != false) {
                     $begin_line = $line_counter;
                 }
-                if (strlen(trim(join("",explode(";", $inline)))) == 0) {
+                if ($begin_line > 0 && ($line_counter > $begin_line && !preg_match('/[0-9]+/',explode(";", $inline)[0])) || 
+                    ($begin_line > 0 && $line_counter > $begin_line && strlen(trim(join("",explode(";", $inline)))) == 0)) {
                     $end_line = $line_counter;
+                    break;
                 }
+                if ($line_counter == count(file($file_name))-1) $end_line = $line_counter;
+                
                 $line_counter++;
             }
-
-            $end_line =   $end_line != 0  ? $end_line : count(file($file_name));
-
             fclose($saved_file);
 
             $saved_file = fopen($file_name,"r") or show_message(MESSAGES[$language][13], $language);
@@ -135,13 +136,12 @@ try {
             $customer_array = [];
             $combinated_buchungstext = [];
 
-            for ($line_index = 0; $line_index < $end_line; $line_index++) {
+            for ($line_index = 0; $line_index < $end_line - $begin_line - 1; $line_index++) {
                 $line = fgets($saved_file);
                 $column_data_array = explode(";", $line);
                 $combination_key_account_opposite_account = "";
 
-                if (strlen(trim(join("",$column_data_array))) != 0 && $line_index <= $end_line) {
-                
+                if (strlen(trim(join("",$column_data_array))) != 0) {
                     for ($column_index = 0; $column_index <= count($column_data_array); $column_index++) {
                         if ($column_index === $index_of_account_column)
                             $combination_key_account_opposite_account .= $column_data_array[$column_index].",";
@@ -154,13 +154,12 @@ try {
                         $account_entries[$combination_key_account_opposite_account]["umsatz"] = 0.0;
                         $combinated_buchungstext[$combination_key_account_opposite_account]["buchungstext"] = "";
                     }
-                } else {
-                    break;
                 }
             }
 
-            for ($footer_line_index = $end_line; $footer_line_index <= count(file($file_name)); $footer_line_index++) {
-                array_push($customer_array, explode(";", fgets($saved_file)));
+            for ($footer_line_index = $end_line; $footer_line_index < count(file($file_name)); $footer_line_index++) {
+                $customer_line = fgets($saved_file);
+                array_push($customer_array, explode(";",  $customer_line));
             }
 
             fclose($saved_file);
@@ -170,12 +169,13 @@ try {
             for ($line_index = 0; $line_index < $end_line; $line_index++) {
                 $line = fgets($saved_file);
                 $column_data_array = explode(";", $line);
-               
+  
                 if (strlen(trim(join("",$column_data_array))) != 0 && $line_index > $begin_line) {
                     for ($column_index = 0; $column_index < count($column_data_array); $column_index++) {
                         if ($column_index === $index_of_sales_without_a_mark) {  
                             $combination_key = $column_data_array[$index_of_account_column].','.$column_data_array[$index_of_opposite_account_column].','.$column_data_array[$index_of_belegfeld_1];
                             $point_formatted_sales = floatval(preg_replace('/,/', '.', $column_data_array[$index_of_sales_without_a_mark]));
+                            
                             if (strlen(trim(str_replace(",","", $combination_key))) != 0) {
                                 $account_entries[$combination_key]["umsatz"] = $account_entries[$combination_key]["umsatz"] + $point_formatted_sales;  
                             }
@@ -206,7 +206,7 @@ try {
             foreach ($account_entries as $key => $line_array) {
                 $formatted_line = "";
                 $column_count = 0;
-                if ($line_count < count($account_entries) - 1) {
+                if ($line_count < count($account_entries)) {
                     foreach ($line_array as $column_key => $column) {
                         if ($column_key === "umsatz") {
                             $comma_formatted_sales = preg_replace('/\./', ',',strval($column));
@@ -223,7 +223,7 @@ try {
                 fwrite($formatted_file, $formatted_line);
                 $line_count++;
             }
-            fwrite($formatted_file,";;;;;;;;;;;;;\n");
+
             foreach ($customer_array as $line) {
                 fwrite($formatted_file, join(";",$line));
             }
