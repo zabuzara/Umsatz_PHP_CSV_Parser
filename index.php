@@ -233,14 +233,18 @@ try {
             $print_column_names = isset($_POST["print-column-name"]) &&  $_POST["print-column-name"] === "on" ? true : false;
             $print_body = true;
             $print_footer = isset($_POST["print-footer-lines"]) &&  $_POST["print-footer-lines"] === "on" ? true : false;
-
-            // print_r($_POST["head-line-text"]);
+            $new_head_line = "";
+            for ($post_index = 0; $post_index < count($_POST); $post_index++) {
+                if (isset($_POST["extf-".$post_index]))
+                    $new_head_line .= $_POST["extf-".$post_index].($post_index < count($_POST) - 1 ? ";" : "");
+            }
 
             $formatted_file = fopen($file_name, "w") or show_message(MESSAGES[$language][15], $language);
 
             if ($print_header)
-                for ($head_line_index = 0; $head_line_index < $column_name_line - 1; $head_line_index++)
-                    fwrite($formatted_file, join(";",$head_line_array[$head_line_index]));
+                //for ($head_line_index = 0; $head_line_index < $column_name_line - 1; $head_line_index++)
+                //fwrite($formatted_file, join(";",$head_line_array[$head_line_index]));
+                fwrite($formatted_file, $new_head_line."\r\n");
 
             if ($print_column_names)
                 fwrite($formatted_file, join(";",$head_line_array[$column_name_line-1]));
@@ -287,7 +291,6 @@ try {
 if (!DEBUG)
     restore_error_handler();
 
-
 ?>
 
 <!DOCTYPE html>
@@ -314,22 +317,17 @@ if (!DEBUG)
             const fileInput = document.querySelector(".main-upload-container-form-select-file");
             const headlineCheckboxContainer = document.querySelector(".main-upload-container-form-checkbox-container");
             const headlineCheckbox = document.getElementById("head-line");
-            if (headlineCheckbox != null){
-                const headLineTextField = document.createElement("input");
-                headLineTextField.classList.add("main-upload-container-form-checkbox-container-headline-textfield");
-                headLineTextField.type = "text";
-                headLineTextField.name = "head-line-text";
-                headLineTextField.placeholder = "schreibe deine eigene Kopfzeile (EXTF...)"
+            const headLineTextFieldContainer = document.createElement("div");
+            headLineTextFieldContainer.classList.add("main-upload-container-form-checkbox-container-headline-textfield-container");
+            if (headlineCheckbox != null)
                 headlineCheckbox.addEventListener("input", function(e){
-                
                     if(e.target.checked){
-                        headlineCheckboxContainer.appendChild(headLineTextField);
+                        headlineCheckboxContainer.appendChild(headLineTextFieldContainer);
                     } else{
-                        headlineCheckboxContainer.removeChild(headLineTextField);
+                        headlineCheckboxContainer.removeChild(headLineTextFieldContainer);
                     }
     
                 });
-            }
 
             if (fileInput != null)
                 fileInput.addEventListener("input", function(e){
@@ -342,6 +340,28 @@ if (!DEBUG)
                         let currentDataSize = file.size < 5000000;
                         if (currentDatatype) {
                             if (currentDataName) {
+
+                                const reader = new FileReader();
+                                let extfLine = [];
+                                reader.readAsBinaryString(file);
+
+                                reader.onload = function() {
+                                    const lines = reader.result.split("\r\n");
+                                    for(let i = 0; i < lines.length ; i++)
+                                        if (lines[i].toLowerCase().startsWith("extf"))
+                                            extfLine = lines[i].split(";");
+                                    
+                                    if (headLineTextFieldContainer != null)
+                                        headLineTextFieldContainer.innerHTML = "";
+
+                                    for(let e = 0; e < extfLine.length; e++){
+                                        const textField = document.createElement("input");
+                                        textField.value = extfLine[e];
+                                        textField.name = "extf-"+e;
+                                        headLineTextFieldContainer.appendChild(textField);
+                                    }
+                                }
+                     
                                 let downloadLink = document.querySelector(".main-upload-container-form-download-link");
                                 message.textContent = "<?=MESSAGES[$language][0]?>";
 
@@ -516,16 +536,20 @@ if (!DEBUG)
             border-radius: 0.5rem;
             padding: 10px;
             margin: 0 auto;
-            max-width: 600px;  
+            max-width: 100%;  
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-between;
+            justify-content: center;
         } 
 
         .main-upload-container-form-checkbox-container > label {
             font-size: 0.8rem;
             margin: 0 4px;
             color:gray;
+        }
+
+        .main-upload-container-form-checkbox-container input[type="checkbox"] {
+            margin: 5px 50px 5px 10px;
         }
 
         .main-upload-container-form-checkbox-container > label:hover,
@@ -536,12 +560,29 @@ if (!DEBUG)
         }
 
         .main-upload-container-form-checkbox-container-headline-textfield {
-            width:100%;
+            width:100px;
             margin: 30px auto 0 auto;
             border: 1px solid gray;
             border-radius: 0.5rem;
             font-size: 0.9rem;
             padding: 5px;
+        }
+
+        .main-upload-container-form-checkbox-container-headline-textfield-container {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            overflow-x: auto;
+        }
+
+        .main-upload-container-form-checkbox-container-headline-textfield-container > input {
+            width: fit-content;
+            display: inline-block;
+            font-size: 0.7rem;
+            margin: 3px;
+            padding: 3px;
+            border: 1px solid #ccc;
+            border-radius: 0.5rem;
         }
 
         .main-upload-container-form-checkbox-container-headline-textfield::-webkit-input-placeholder {
