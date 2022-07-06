@@ -232,7 +232,7 @@ try {
             $new_head_line = "";
             for ($post_index = 0; $post_index < count($_POST); $post_index++) {
                 if (isset($_POST["extf-".$post_index]))
-                    $new_head_line .= str_replace(";"," ", $_POST["extf-".$post_index]).($post_index < count($_POST) - 1 ? ";" : "");
+                    $new_head_line .= trim(str_replace(";"," ", $_POST["extf-".$post_index])).($post_index < count($_POST) - 1 ? ";" : "");
             }
 
             $formatted_file = fopen($file_name, "w") or show_message(MESSAGES[$language][15], $language);
@@ -635,6 +635,15 @@ if (!DEBUG)
             transition: 0.3s ease-in-out;
             color: white;
         }
+
+        .main-upload-container-version {
+            width:100%;
+            text-align: center;
+            color: gray;
+            font-size: 0.8rem;
+            padding:20px;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -643,6 +652,7 @@ if (!DEBUG)
             <figure class="main-upload-container-logo-frame">
                 <img class="main-upload-container-logo-frame-image" src="logo.png" alt="logo" title="CSV-Parser">
             </figure>
+            <span class="main-upload-container-version">Umsatz-CSV-Parser v1.1.0</span>
             <?php 
                 if ($message === MESSAGES[$language][0] || $message ===  MESSAGES[$language][1])
                     echo '<div class="main-upload-container-message" title="'.MESSAGES[$language][20].'">'.$message.'</div>';
