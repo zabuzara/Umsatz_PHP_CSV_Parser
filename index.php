@@ -1,10 +1,10 @@
 <?php
 /**
- * @copyright 2022 - JAEMACOM-GmbH <https://www.jaemacom.de>
- * @author Omid Malekzadeh Eshtajarani <omid.malekzadeh-eshtajarani@jaemacom.de>
+ * @copyright Omid Malekzadeh Eshtajarani <omidmalekzadeh@yahoo.com>
+ * @author Omid Malekzadeh Eshtajarani <omidmalekzadeh@yahoo.com>
  * @version PHP version 7.4.29 
  */
-define("DEBUG", true);
+define("DEBUG", false);
 define("MESSAGES", [
     "english" => [
         0   => "No message! 👍",
@@ -137,8 +137,6 @@ try {
                 $head_line =  fgets($saved_file);
                 array_push($head_line_array, explode(";",$head_line));
             }
-    
-    
 
             $second_row_as_array = $head_line_array[$column_name_line-1];
             $account_entries = [];
@@ -150,8 +148,6 @@ try {
             $begin_the_customer_paragraph = count(file($file_name));
             $customer_array = [];
             $combinated_buchungstext = [];
-
-
 
             for ($line_index = $first_data_line; $line_index <= $last_data_line; $line_index++) {
                 $line = fgets($saved_file);
