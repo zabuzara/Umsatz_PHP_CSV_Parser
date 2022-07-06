@@ -174,7 +174,7 @@ try {
                 }
             }
 
-            for ($footer_line_index = $last_data_line - 1 ; $footer_line_index < $last_line; $footer_line_index++) {
+            for ($footer_line_index = $last_data_line; $footer_line_index < $last_line; $footer_line_index++) {
                 $customer_line = fgets($saved_file);
                 array_push($customer_array, explode(";",  $customer_line));
             } 
@@ -212,13 +212,11 @@ try {
                                     }
                                 } else {
                                     $account_entries[$combination_key][$second_row_as_array[$column_index]] = $column_data_array[$column_index];
-
                                 }
                             }
                         }
                     }
                     if (strlen(trim(str_replace(",","", $combination_key))) != 0) {
-                      
                         if (array_key_exists($combination_key, $combinated_buchungstext)) {
                             $account_entries[$combination_key]["Buchungstext"] = trim($combinated_buchungstext[$combination_key]["buchungstext"]) ;
                         } 
@@ -230,29 +228,48 @@ try {
             /**
              * Schreiben neues CSV
              */
+           
+            $print_header = isset($_POST["print-header-lines"]) &&  $_POST["print-header-lines"] === "on" ? true : false;
+            $print_column_names = isset($_POST["print-column-name"]) &&  $_POST["print-column-name"] === "on" ? true : false;
+            $print_body = true;
+            $print_footer = isset($_POST["print-footer-lines"]) &&  $_POST["print-footer-lines"] === "on" ? true : false;
+
+            // print_r($_POST["head-line-text"]);
+
             $formatted_file = fopen($file_name, "w") or show_message(MESSAGES[$language][15], $language);
-            for ($head_line_index = 0; $head_line_index < $column_name_line; $head_line_index++)
-                fwrite($formatted_file, join(";",$head_line_array[$head_line_index]));
+
+            if ($print_header)
+                for ($head_line_index = 0; $head_line_index < $column_name_line - 1; $head_line_index++)
+                    fwrite($formatted_file, join(";",$head_line_array[$head_line_index]));
+
+            if ($print_column_names)
+                fwrite($formatted_file, join(";",$head_line_array[$column_name_line-1]));
 
             $line_count = 0;
-            foreach ($account_entries as $key => $line_array) {
-                $formatted_line = "";
-                $column_count = 0;
+            if ($print_body)
+                foreach ($account_entries as $key => $line_array) {
+                    $formatted_line = "";
+                    $column_count = 0;
 
-                if ($line_count < $last_data_line) {
-                    foreach ($line_array as $column_key => $column) {
-                        if ($column_key === "umsatz") {
-                            $comma_formatted_sales = preg_replace('/\./', ',',strval($column));
-                            $formatted_line .= $comma_formatted_sales.";";
-                        } else {
-                            $formatted_line .= $column.";";
+                    if ($line_count < $last_data_line) {
+                        foreach ($line_array as $column_key => $column) {
+                            if ($column_key === "umsatz") {
+                                $comma_formatted_sales = preg_replace('/\./', ',',strval($column));
+                                $formatted_line .= $comma_formatted_sales.";";
+                            } else {
+                                $formatted_line .= $column.";";
+                            }
+                            $column_count++;
                         }
-                        $column_count++;
+                        fwrite($formatted_file, $formatted_line."\n");
                     }
-                    fwrite($formatted_file, $formatted_line."\n");
+                    $line_count++;
                 }
-                $line_count++;
-            }
+
+            if ($print_footer)
+                for ($footer_line_index = 0; $footer_line_index < $last_line -  $last_data_line; $footer_line_index++)
+                    fwrite($formatted_file, join(";",$customer_array[$footer_line_index]));
+
             fclose($formatted_file);
 
             $download_file = $file_name;
@@ -269,6 +286,8 @@ try {
 }
 if (!DEBUG)
     restore_error_handler();
+
+
 ?>
 
 <!DOCTYPE html>
@@ -289,63 +308,84 @@ if (!DEBUG)
          * Initialize JS-Entry-Point
          */
         function init(){
-            const fileLabel = document.querySelector(".main-upload-container-select-file-label");
+            const fileLabel = document.querySelector(".main-upload-container-form-select-file-label");
             const message = document.querySelector(".main-upload-container-message");
             const form = document.querySelector(".main-upload-container-form");
-            const fileInput = document.querySelector(".main-upload-container-select-file");
-            fileInput.addEventListener("input", function(e){
-                message.classList.remove("error");
-                if (e.target.files.length == 1) {
-                    const file = e.target.files[0];
-                    const fileName = file.name;
-                    let currentDatatype = file.type === "text/csv";
-                    let currentDataName = file.name.split(".").length == 2;
-                    let currentDataSize = file.size < 5000000;
-                    if (currentDatatype) {
-                        if (currentDataName) {
-                            let downloadLink = document.querySelector(".main-upload-container-form-download-link");
-                            message.textContent = "<?=MESSAGES[$language][0]?>";
+            const fileInput = document.querySelector(".main-upload-container-form-select-file");
+            const headlineCheckboxContainer = document.querySelector(".main-upload-container-form-checkbox-container");
+            const headlineCheckbox = document.getElementById("head-line");
+            if (headlineCheckbox != null){
+                const headLineTextField = document.createElement("input");
+                headLineTextField.classList.add("main-upload-container-form-checkbox-container-headline-textfield");
+                headLineTextField.type = "text";
+                headLineTextField.name = "head-line-text";
+                headLineTextField.placeholder = "schreibe deine eigene Kopfzeile (EXTF...)"
+                headlineCheckbox.addEventListener("input", function(e){
+                
+                    if(e.target.checked){
+                        headlineCheckboxContainer.appendChild(headLineTextField);
+                    } else{
+                        headlineCheckboxContainer.removeChild(headLineTextField);
+                    }
+    
+                });
+            }
 
-                            if (currentDataSize) {
-                                const oldConvertButton = form.querySelector(".main-upload-container-form-submit-button");
-                                fileLabel.textContent = fileName;
-                                const convertButton = document.createElement("input");
-                                convertButton.classList.add("main-upload-container-form-submit-button");
-                                convertButton.type = "submit";
-                                convertButton.name = "submit";
-                                convertButton.value = "<?=MESSAGES[$language][19]?>";
-                                convertButton.title = "<?=MESSAGES[$language][22]?>";
-                                if (oldConvertButton != null) {
-                                    form.removeChild(oldConvertButton);
+            if (fileInput != null)
+                fileInput.addEventListener("input", function(e){
+                    message.classList.remove("error");
+                    if (e.target.files.length == 1) {
+                        const file = e.target.files[0];
+                        const fileName = file.name;
+                        let currentDatatype = file.type === "text/csv";
+                        let currentDataName = file.name.split(".").length == 2;
+                        let currentDataSize = file.size < 5000000;
+                        if (currentDatatype) {
+                            if (currentDataName) {
+                                let downloadLink = document.querySelector(".main-upload-container-form-download-link");
+                                message.textContent = "<?=MESSAGES[$language][0]?>";
+
+                                if (currentDataSize) {
+                                    const oldConvertButton = form.querySelector(".main-upload-container-form-submit-button");
+                                    fileLabel.textContent = fileName;
+                                    const convertButton = document.createElement("input");
+                                    convertButton.classList.add("main-upload-container-form-submit-button");
+                                    convertButton.type = "submit";
+                                    convertButton.name = "submit";
+                                    convertButton.value = "<?=MESSAGES[$language][19]?>";
+                                    convertButton.title = "<?=MESSAGES[$language][22]?>";
+                                    if (oldConvertButton != null) {
+                                        form.removeChild(oldConvertButton);
+                                    }
+                                    if (downloadLink != null){
+                                        form.removeChild(downloadLink);
+                                    }
+                                    form.appendChild(convertButton);
+                                } else {
+                                    message.textContent = "<?=MESSAGES[$language][8]?>";
                                 }
-                                if (downloadLink != null){
-                                    form.removeChild(downloadLink);
-                                }
-                                form.appendChild(convertButton);
                             } else {
-                                message.textContent = "<?=MESSAGES[$language][8]?>";
+                                message.textContent = "<?=MESSAGES[$language][6]?>";
                             }
                         } else {
-                            message.textContent = "<?=MESSAGES[$language][6]?>";
+                            message.textContent = "<?=MESSAGES[$language][5]?>";
                         }
-                    } else {
-                        message.textContent = "<?=MESSAGES[$language][5]?>";
-                    }
 
-                    if (!currentDatatype || !currentDataName || !currentDataSize){
-                        message.classList.add("error");
-                        const oldConvertButton = form.querySelector(".main-upload-container-form-submit-button");
-                        let downloadLink = document.querySelector(".main-upload-container-form-download-link");
-                        if (oldConvertButton != null) {
-                            form.removeChild(oldConvertButton);
-                        }
-                        if (downloadLink != null){
-                            form.removeChild(downloadLink);
+                        if (!currentDatatype || !currentDataName || !currentDataSize){
+                            message.classList.add("error");
+                            const oldConvertButton = form.querySelector(".main-upload-container-form-submit-button");
+                            let downloadLink = document.querySelector(".main-upload-container-form-download-link");
+                            if (oldConvertButton != null) {
+                                form.removeChild(oldConvertButton);
+                            }
+                            if (downloadLink != null){
+                                form.removeChild(downloadLink);
+                            }
                         }
                     }
-                }
-            });
+                });
         }
+
     </script>
     <title>CSV-Parser in PHP</title>
     <style>
@@ -441,7 +481,7 @@ if (!DEBUG)
             }
         }
 
-        .main-upload-container-select-file-label {
+        .main-upload-container-form-select-file-label {
             margin: 10px auto;
             width: 80%;
             border: 1px solid #ccc;
@@ -458,17 +498,63 @@ if (!DEBUG)
             text-overflow: ellipsis;
         }
 
-        .main-upload-container-select-file-label:hover,
-        .main-upload-container-select-file-label:focus{
+        .main-upload-container-form-select-file-label:hover,
+        .main-upload-container-form-select-file-label:focus{
             border: 1px solid greenyellow;
             background-color: #adff2f;
             color:black;
         }
 
-        .main-upload-container-select-file {
+        .main-upload-container-form-select-file {
             display: none;
             width: 50%;
             background-color: white;
+        }
+
+        .main-upload-container-form-checkbox-container {
+            border: 1px solid #ccc;
+            border-radius: 0.5rem;
+            padding: 10px;
+            margin: 0 auto;
+            max-width: 600px;  
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        } 
+
+        .main-upload-container-form-checkbox-container > label {
+            font-size: 0.8rem;
+            margin: 0 4px;
+            color:gray;
+        }
+
+        .main-upload-container-form-checkbox-container > label:hover,
+        .main-upload-container-form-checkbox-container > label:focus {
+            cursor: pointer;
+            transform: scale(1.1);
+            color:black;
+        }
+
+        .main-upload-container-form-checkbox-container-headline-textfield {
+            width:100%;
+            margin: 30px auto 0 auto;
+            border: 1px solid gray;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            padding: 5px;
+        }
+
+        .main-upload-container-form-checkbox-container-headline-textfield::-webkit-input-placeholder {
+            font-size: 0.8rem;
+        }
+        .main-upload-container-form-checkbox-container-headline-textfield::-moz-placeholder {
+            font-size: 0.8rem;
+        }
+        .main-upload-container-form-checkbox-container-headline-textfield:-ms-input-placeholder {
+            font-size: 0.8rem;
+        }
+        .main-upload-container-form-checkbox-container-headline-textfield:-moz-placeholder {
+            font-size: 0.8rem;
         }
 
         .main-upload-container-form-submit-button {
@@ -530,8 +616,18 @@ if (!DEBUG)
                 <?=MESSAGES[$language][16]?>
             </div>
             <form class="main-upload-container-form" method="post" action="./index.php" enctype="multipart/form-data">
-                <label for="file" class="main-upload-container-select-file-label" title="<?=MESSAGES[$language][17]?>"><?=MESSAGES[$language][17]?></label>
-                <input id="file" class="main-upload-container-select-file" type="file" name="csv" />
+                <label for="file" class="main-upload-container-form-select-file-label" title="<?=MESSAGES[$language][17]?>"><?=MESSAGES[$language][17]?></label>
+                <input id="file" class="main-upload-container-form-select-file" type="file" name="csv" />
+
+                <div class="main-upload-container-form-checkbox-container" >
+                    <label for="head-line">drucke Kopfzeilen</label>
+                    <input id="head-line" type="checkbox" name="print-header-lines"/>
+                    <label for="column-line">drucke Splatennamen</label>
+                    <input id="column-line" type="checkbox" name="print-column-name" checked/>
+                    <label for="footer-line">drucke Fußzeilen</label>
+                    <input id="footer-line" type="checkbox" name="print-footer-lines"/>
+                </div>
+
                 <?php 
                     if ($download) {
                         echo '<a class="main-upload-container-form-download-link" title="'.MESSAGES[$language][21].'" href="'.$download_file.'" download >'.MESSAGES[$language][18].'</a>';

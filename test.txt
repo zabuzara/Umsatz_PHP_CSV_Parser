@@ -1,2 +1,0 @@
-Umsatz ohne S/H Kennzeichen;S/H Kennzeichen;WKZ;Kurs;Basis-Umsatz;WKZ Basis-Umsatz;Kontonummer;Gegenkonto ohne BU Schluessel;BU Schluessel;Belegdatum;Belegfeld 1;Belegfeld 2 (nur fuer Zahlungsfaelligkeiten);Skonto;Buchungstext;;;;;;;;
-Umsatz ohne S/H Kennzeichen;S/H Kennzeichen;WKZ;Kurs;Basis-Umsatz;WKZ Basis-Umsatz;Kontonummer;Gegenkonto ohne BU Schluessel;BU Schluessel;Belegdatum;Belegfeld 1;Belegfeld 2 (nur fuer Zahlungsfaelligkeiten);Skonto;Buchungstext
