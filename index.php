@@ -101,33 +101,34 @@ try {
             $saved_file = fopen($file_name,"r") or show_message(MESSAGES[$language][13], $language);
             $first_line = 1;
             $column_name_line = 1;
-            $first_data_line = 0;
-            $last_data_line = 0;
+            $first_data_line = 1;
+            $last_data_line = 1;
             $last_line = count(file($file_name));
             $line_counter = 1;
 
             while ($inline = fgets($saved_file)) {
-              
                 if (strpos(strtolower($inline),"umsatz", 1) != false) {
                     $column_name_line =  $line_counter;
                     $first_data_line =  $column_name_line + 1;
-                }
-
-                if (strlen(trim(explode(";", $inline)[0])) == 0 && !preg_match('/[0-9,]+/',explode(";", $inline)[0]) && strlen(trim(join("",explode(";", $inline)))) == 0) {
-                    $last_data_line = $line_counter;
                     break;
-                }
-                
-                if ($line_counter == count(file($file_name)))
-                    $last_data_line = $last_line;
-
+                } 
                 $line_counter++;
             }
 
-            $last_data_line = ($last_data_line == $last_line ? $last_data_line + 1 : $last_data_line);
-            fclose($saved_file);
-   
+            while ($inline = fgets($saved_file)) {
+                $line_array =  explode(";", $inline);
+                if (strlen(trim(join("", $line_array))) == 0 || !preg_match('/^[0-9,]+$/',$line_array[0])) {
+                    $last_data_line = $line_counter;
+                    break;
+                } else if ($line_counter == $last_line - 1) {
+                    $last_data_line = $last_data_line == 1 ? $line_counter + 1 : $last_data_line;
+                    $last_line = $line_counter + 1;
+                    break;
+                }
+                $line_counter++;
+            }
 
+            fclose($saved_file);
 
             $saved_file = fopen($file_name,"r") or show_message(MESSAGES[$language][13], $language);
             $line_counter = 0;
@@ -136,17 +137,7 @@ try {
                 $head_line =  fgets($saved_file);
                 array_push($head_line_array, explode(";",$head_line));
             }
-            // echo $first_line;
-            // echo "<br>";
-            // echo $column_name_line;
-            // echo "<br>";
-            // echo $first_data_line;
-            // echo "<br>";
-            // echo $last_data_line;
-            // echo "<br>";
-            // echo $last_line;
-            // echo "<br>";
-            // echo "<br>";
+    
     
 
             $second_row_as_array = $head_line_array[$column_name_line-1];
@@ -160,10 +151,13 @@ try {
             $customer_array = [];
             $combinated_buchungstext = [];
 
-            for ($line_index = $first_data_line; $line_index < $last_data_line; $line_index++) {
+
+
+            for ($line_index = $first_data_line; $line_index <= $last_data_line; $line_index++) {
                 $line = fgets($saved_file);
                 $column_data_array = explode(";", $line);
                 $combination_key_account_opposite_account = "";
+
                 if (strlen(trim(join("",$column_data_array))) != 0) {
                     for ($column_index = 0; $column_index <= count($column_data_array); $column_index++) {
                         if ($column_index === $index_of_account_column)
@@ -180,94 +174,84 @@ try {
                 }
             }
 
-            // print_r($account_entries);
-            for ($footer_line_index = $last_data_line; $footer_line_index < $last_line; $footer_line_index++) {
+            for ($footer_line_index = $last_data_line - 1 ; $footer_line_index < $last_line; $footer_line_index++) {
                 $customer_line = fgets($saved_file);
                 array_push($customer_array, explode(";",  $customer_line));
             } 
 
             fclose($saved_file);
 
-
-
             $saved_file = fopen($file_name, "r") or show_message(MESSAGES[$language][13], $language);
 
             for ($head_line_index = 0; $head_line_index < $column_name_line; $head_line_index++) {
                 $head_line =  fgets($saved_file);
             }
-            for ($line_index = $first_data_line; $line_index < $last_data_line; $line_index++) {
+
+            for ($line_index = $first_data_line; $line_index <= $last_data_line; $line_index++) {
                 $line = fgets($saved_file);
-                $column_data_array = explode(";", $line);
+                $column_data_array = explode(";", trim($line));
                 if (strlen(trim(join("",$column_data_array))) != 0) {
-                    for ($column_index = 0; $column_index <= count($column_data_array); $column_index++) {
+
+                    for ($column_index = 0; $column_index < count($column_data_array); $column_index++) {
                         $combination_key = $column_data_array[$index_of_account_column].','.$column_data_array[$index_of_opposite_account_column].','.$column_data_array[$index_of_belegfeld_1];
                         if ($column_index === $index_of_sales_without_a_mark) {  
                             $combination_key = $column_data_array[$index_of_account_column].','.$column_data_array[$index_of_opposite_account_column].','.$column_data_array[$index_of_belegfeld_1];
                             $point_formatted_sales = floatval(preg_replace('/,/', '.', $column_data_array[$index_of_sales_without_a_mark]));
-                            
                             if (strlen(trim(str_replace(",","", $combination_key))) != 0) {
                                 if (array_key_exists($combination_key, $account_entries))
                                     $account_entries[$combination_key]["umsatz"] = $account_entries[$combination_key]["umsatz"] + $point_formatted_sales;  
                             }
                         } else {
-                            if (!empty($second_row_as_array[$column_index])) {
-                                $account_entries[$combination_key][$second_row_as_array[$column_index]] = $column_data_array[$column_index];
-                                if ($second_row_as_array[$column_index] == "Belegdatum") {
-                                    $account_entries[$combination_key][$second_row_as_array[$column_index]] =  substr($column_data_array[$column_index], 0, -4);
-                                } 
-                                if ($second_row_as_array[$column_index] == "Buchungstext") {
-                            
+                            if (!empty(trim($second_row_as_array[$column_index]))) {
+                                if (trim($second_row_as_array[$column_index]) == "Belegdatum") {
+                                    $account_entries[$combination_key][trim($second_row_as_array[$column_index])] =  substr($column_data_array[$column_index], 0, -4);
+                                } else if (trim($second_row_as_array[$column_index]) == "Buchungstext") {   
                                     if (strlen(trim(str_replace(",","", $combination_key))) != 0) {
                                         $is_empty = strlen($combinated_buchungstext[$combination_key]["buchungstext"]) == 0;
-                                        $combinated_buchungstext[$combination_key]["buchungstext"] =  $is_empty ? $column_data_array[$column_index] : $combinated_buchungstext[$combination_key]["buchungstext"]  .", ". $column_data_array[$column_index]; 
+                                        $combinated_buchungstext[$combination_key]["buchungstext"] =  $is_empty ? trim($column_data_array[$column_index]) : $combinated_buchungstext[$combination_key]["buchungstext"]  .", ". trim($column_data_array[$column_index]); 
                                     }
+                                } else {
+                                    $account_entries[$combination_key][$second_row_as_array[$column_index]] = $column_data_array[$column_index];
+
                                 }
                             }
                         }
                     }
                     if (strlen(trim(str_replace(",","", $combination_key))) != 0) {
-                        if (array_key_exists($combination_key, $combinated_buchungstext))
-                            $account_entries[$combination_key]["Buchungstext"] = $combinated_buchungstext[$combination_key]["buchungstext"] ;
+                      
+                        if (array_key_exists($combination_key, $combinated_buchungstext)) {
+                            $account_entries[$combination_key]["Buchungstext"] = trim($combinated_buchungstext[$combination_key]["buchungstext"]) ;
+                        } 
                     }
-
-                    // print_r($account_entries[$combination_key]);
-                    // echo "<br>";
-                } 
+                }  
 
             }
 
-
+            /**
+             * Schreiben neues CSV
+             */
             $formatted_file = fopen($file_name, "w") or show_message(MESSAGES[$language][15], $language);
-            for ($head_line_index = 0; $head_line_index < $column_name_line; $head_line_index++) {
+            for ($head_line_index = 0; $head_line_index < $column_name_line; $head_line_index++)
                 fwrite($formatted_file, join(";",$head_line_array[$head_line_index]));
-            }
+
             $line_count = 0;
             foreach ($account_entries as $key => $line_array) {
-                // print_r( $line_array);
-                // echo "<br><br>";
                 $formatted_line = "";
                 $column_count = 0;
-                if ($line_count < count($account_entries)) {
+
+                if ($line_count < $last_data_line) {
                     foreach ($line_array as $column_key => $column) {
                         if ($column_key === "umsatz") {
                             $comma_formatted_sales = preg_replace('/\./', ',',strval($column));
                             $formatted_line .= $comma_formatted_sales.";";
                         } else {
-                            if ($column_count < count($line_array) - 1)
-                                $formatted_line .= $column.";";
-                            else
-                                $formatted_line .= $column;
+                            $formatted_line .= $column.";";
                         }
                         $column_count++;
                     }
+                    fwrite($formatted_file, $formatted_line."\n");
                 }
-            
-                fwrite($formatted_file, $formatted_line);
                 $line_count++;
-            }
-
-            foreach ($customer_array as $line) {
-                fwrite($formatted_file, join(";",$line));
             }
             fclose($formatted_file);
 
