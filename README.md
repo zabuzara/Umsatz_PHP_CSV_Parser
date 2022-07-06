@@ -1,4 +1,4 @@
-# Umsatz_PHP_CSV_Parser v1.0.0
+# Umsatz_PHP_CSV_Parser v1.1.0
 USAGE:
   - this project is compatible with PHP version 7.4.29
   - you must activate teh JavaScrpt in browser
