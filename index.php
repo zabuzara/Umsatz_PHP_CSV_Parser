@@ -232,7 +232,7 @@ try {
             $new_head_line = "";
             for ($post_index = 0; $post_index < count($_POST); $post_index++) {
                 if (isset($_POST["extf-".$post_index]))
-                    $new_head_line .= $_POST["extf-".$post_index].($post_index < count($_POST) - 1 ? ";" : "");
+                    $new_head_line .= str_replace(";"," ", $_POST["extf-".$post_index]).($post_index < count($_POST) - 1 ? ";" : "");
             }
 
             $formatted_file = fopen($file_name, "w") or show_message(MESSAGES[$language][15], $language);
