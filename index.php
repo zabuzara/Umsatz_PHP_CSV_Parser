@@ -669,7 +669,7 @@ if (!DEBUG)
                 <div class="main-upload-container-form-checkbox-container" >
                     <label for="head-line">drucke Kopfzeilen</label>
                     <input id="head-line" type="checkbox" name="print-header-lines"/>
-                    <label for="column-line">drucke Splatennamen</label>
+                    <label for="column-line">drucke Spaltennamen</label>
                     <input id="column-line" type="checkbox" name="print-column-name" checked/>
                     <label for="footer-line">drucke Fußzeilen</label>
                     <input id="footer-line" type="checkbox" name="print-footer-lines"/>
